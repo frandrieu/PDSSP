@@ -7,47 +7,47 @@ Read a STAC catalog from PDSSP using pystac
   
 @author: fandrieu
 """
+# Import necessary libraries
 from pystac_client import Client
 from scipy.io import readsav
 import urllib.request
 import matplotlib.pyplot as plt
 import numpy as np
-#Example : PDSSP Mars catalogs
-url = "https://pdssp.ias.universite-paris-saclay.fr/catalogs/mars"
+
+# Example: PDSSP Mars catalogs
+# Define the URL of the STAC catalog
+#url = "https://pdssp.ias.universite-paris-saclay.fr/catalogs/mars"
 url="https://raw.githubusercontent.com/pdssp/pdssp-stac-repo/test/ias/mars/catalog.json"
 
 
-
+# Open the STAC catalog using pystac_client
 cat = Client.open(url)
+
 print(f"ID: {cat.id}")
 print(f"Title: {cat.title or 'N/A'}")
 print(f"Description: {cat.description or 'N/A'}")
 
-#print(list(cat.get_collections()))
-
+# Get collections from the catalog
 collections=list(cat.get_collections())
 print(f"Number of collections: {len(collections)}")
 print("Collections IDs:")
 for collection in collections:
     print(f"- {collection.id}")
+
+# Get the first collection
 collection=cat.get_collection(collections[0].id)
 
+
+# Check if the catalog conforms to the ITEM_SEARCH standard and add it if not
 cat.conforms_to("ITEM_SEARCH")
 cat.add_conforms_to("ITEM_SEARCH")
+
+# Get items from the collection
 items=collection.get_items()
 #get first item 
 item=next(items)
-def get_ten_items(items):
-    for i, item in enumerate(items):
-        print(f"{i}: {item}", flush=True)
-        if i == 9:
-            return
 
-print('First page', flush=True)
-get_ten_items(items)
 
-print('Second page', flush=True)
-get_ten_items(items)
 #collection_items = list(cat.search(collections=collection.id, max_items=10).items())
 #item = collection.get_item(collection_items[0].id)
 #item=collection_items[0]
@@ -90,7 +90,7 @@ plt.show()
 
 roi=cube[60:100,:,50:75]
 
-plt.imshow(roi)
+plt.imshow(img[60:100,50:75])
 plt.show()
 
 spectrum=np.mean(roi, axis=(0,2))
@@ -99,34 +99,17 @@ plt.show()
 plt.plot(wave,spectrum)
 plt.plot(wave, np.mean(roi, axis=0))
 plt.show()
-'''
-#get all children
-children = list(cat.get_children())
-print("catalog children")
-print(children)
 
 
-#Crawling through Child Catalogs/Collections
-ch1=cat.get_child(children[1].id)
-print("getting collections")
-print(list(ch1.get_collections()))
+#function to display info about 10 items
+def get_ten_items(items):
+    for i, item in enumerate(items):
+        print(f"{i}: {item}", flush=True)
+        if i == 9:
+            return
 
-print("getting children")
-chch=list(ch1.get_children())
-chch0=ch1.get_child(chch[0].id)
-print(chch)
+print('First page', flush=True)
+get_ten_items(items)
 
-print("getting collections")
-print(list(chch0.get_collections()))
-print("getting children")
-chchch=list(chch0.get_children())
-chchch0=chch0.get_child(chchch[0].id)
-print(chchch)
-
-print("getting collections")
-print(list(chchch0.get_collections()))
-print("getting children")
-#chchchch=list(chchch0.get_children())
-#chchchch0=chchch0.get_child(chchchch[0].id)
-
-'''
+print('Second page', flush=True)
+get_ten_items(items)
